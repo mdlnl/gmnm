@@ -1,0 +1,16 @@
+{
+  "name": "NM in GM",
+  "description": "Puts nautical miles in Google Maps distance card",
+  "version": "0.1",
+  "manifest_version": 3,
+  "permissions": [
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.google.com/maps/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
