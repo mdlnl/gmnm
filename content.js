@@ -61,13 +61,11 @@ if (contentContainerNode != null) {
         for (m in ml) {
             if (ml[m].target.id == 'ruler') {
                 new MutationObserver((rml, rob) => updateTotalDistanceDivListener())
-                    .observe(ml[m].target, { attributes: true, childList: true, subtree: true });
+                    .observe(ml[m].target, { childList:true, subtree:true });
                 console.info('[GMNM] Observing new ruler.');
                 return;
             }
         }
-    }).observe(
-        contentContainerNode,
-        { attributes: false, childList: true, subtree: true });
+    }).observe(contentContainerNode, { attributes: false, childList: true, subtree: true });
     console.info('[GMNM] Watching for ruler creation.');
 }
