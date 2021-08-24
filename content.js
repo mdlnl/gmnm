@@ -43,7 +43,7 @@ function addOrUpdateAddNmNode(totalDistanceDiv, nm) {
 }
 
 function updateTotalDistanceDivListener(mutationList) {
-    console.log(`[GMNM] Observed something`);
+    console.info(`[GMNM] Observed something`);
     var totalDistanceDiv = findTotalDistanceDiv();
     if (totalDistanceDiv != null) {
         const nm = computeNm(totalDistanceDiv);
