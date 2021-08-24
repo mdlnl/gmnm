@@ -46,8 +46,8 @@ function addOrUpdateAddNmNode(totalDistanceDiv, nm) {
     }
 }
 
-function updateTotalDistanceDivListener(mutationList) {
-    console.log(`Observed ${mutationList}`);
+function updateTotalDistanceDivListener() {
+    console.log(`Observed something`);
     var totalDistanceDiv = findTotalDistanceDiv();
     if (totalDistanceDiv != null) {
         const nm = computeNm(totalDistanceDiv);
@@ -70,7 +70,7 @@ function setupMutationObserver() {
         return;
     }
     updateDistanceObserver =
-          new MutationObserver((ml, ob) => updateTotalDistanceDivListener(ml));
+          new MutationObserver((ml, ob) => updateTotalDistanceDivListener());
     updateDistanceObserver.observe(
         totalDistanceDiv.parentElement,
         { attributes: true, childList: true, subtree: true });
