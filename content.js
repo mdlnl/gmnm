@@ -1,4 +1,4 @@
-function findTotalDistanceDiv(elem) {
+function findTotalDistanceDiv() {
     const xpath = "//*[@id='ruler']/div/div[4]";
     return document
         .evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
@@ -54,9 +54,21 @@ function updateTotalDistanceDivListener() {
     }
 }
 
+function setupMutationObserver() {
+    const totalDistanceDiv = findTotalDistanceDiv();
+    if (totalDistanceDiv == null) {
+        return;
+    }
+    const canvas = document.getElementsByTagName("canvas")[0];
+    const updateDistanceObserver =
+          new MutationObserver((ml, ob) => updateTotalDistanceDivListener);
+    updateDistanceObserver.observe(
+        totalDistanceDiv,
+        { attributes: true, childList: true, subtree: true });
+}
 
 document
     .getElementsByTagName("canvas")[0]
-    .addEventListener("click", updateTotalDistanceDivListener);
+    .addEventListener("click", setupMutationObserver);
 
 console.log("NM in GM will do stuff on this page.");
