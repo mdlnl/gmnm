@@ -42,7 +42,7 @@ function addOrUpdateAddNmNode(totalDistanceDiv, nm) {
     }
 }
 
-function updateTotalDistanceDivListener() {
+function updateTotalDistanceDivListener(mutationList) {
     console.log(`[GMNM] Observed something`);
     var totalDistanceDiv = findTotalDistanceDiv();
     if (totalDistanceDiv != null) {
@@ -60,14 +60,18 @@ if (contentContainerNode != null) {
     new MutationObserver((ml, ob) => {
         for (m in ml) {
             if (ml[m].target.id == 'ruler') {
-                new MutationObserver((rml, rob) => updateTotalDistanceDivListener())
-                    .observe(ml[m].target, { attributes: true, childList: true, subtree: true });
+                new MutationObserver((rml, rob) => updateTotalDistanceDivListener(rml))
+                    .observe(
+                        ml[m].target,
+                        {
+                            attributes:true, // needed when text changes
+                            childList:true, // needed for when text is added
+                            subtree:true // needed, no idea why
+                        });
                 console.info('[GMNM] Observing new ruler.');
                 return;
             }
         }
-    }).observe(
-        contentContainerNode,
-        { attributes: false, childList: true, subtree: true });
+    }).observe(contentContainerNode, { childList: true, subtree: true });
     console.info('[GMNM] Watching for ruler creation.');
 }
