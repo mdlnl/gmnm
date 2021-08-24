@@ -12,19 +12,17 @@ function convertMiToNm(mi) {
 const CONVERSION_FACTORS = {
     "mi": 0.868976,
     "ft": 0.000164579,
+    "m": 0.000539957,
+    "km": 0.539957,
     "nm": 1.0
 };
 
 function computeNm(totalDistanceDiv) {
     for (n in totalDistanceDiv.children) {
         if (totalDistanceDiv.children[n].innerText != null) {
-            const matchMi = totalDistanceDiv.children[n].innerText.match(/([0-9.,]*) mi/);
-            if (matchMi != null && matchMi.length > 1) {
-                return parseFloat(matchMi[1].replaceAll(',', '')) * CONVERSION_FACTORS["mi"];
-            }
-            const matchFt = totalDistanceDiv.children[n].innerText.match(/([0-9.,]*) ft/);
-            if (matchFt != null && matchFt.length > 1) {
-                return parseFloat(matchFt[1].replaceAll(',', '')) * CONVERSION_FACTORS["ft"];
+            const match = totalDistanceDiv.children[n].innerText.match(/([0-9.,]*) (mi|ft|km|m)/);
+            if (match != null && match.length > 2) {
+                return parseFloat(matchMi[1].replaceAll(',', '')) * CONVERSION_FACTORS[match[2]];
             }
         }
     }
@@ -40,7 +38,10 @@ function addOrUpdateAddNmNode(totalDistanceDiv, nm) {
         totalDistanceDiv.appendChild(nmSpan);
     }
     
-    nmSpan.innerText = ` (${nm.toFixed(1)} nm)`;
+    var newText = ` (${nm.toFixed(1)} nm)`;
+    if (nmSpan.textContent !== newText) {
+        nmSpan.textContent = newText;
+    }
 }
 
 function updateTotalDistanceDivListener() {
@@ -63,12 +64,14 @@ function setupMutationObserver() {
     const updateDistanceObserver =
           new MutationObserver((ml, ob) => updateTotalDistanceDivListener);
     updateDistanceObserver.observe(
-        totalDistanceDiv,
+        totalDistanceDiv.parentElement,
         { attributes: true, childList: true, subtree: true });
 }
 
-document
-    .getElementsByTagName("canvas")[0]
-    .addEventListener("click", setupMutationObserver);
+//document.addEventListener("DOMContentLoaded", (event) => {
+    document
+        .getElementsByTagName("canvas")[0]
+        .addEventListener("click", setupMutationObserver);
 
-console.log("NM in GM will do stuff on this page.");
+    console.log("NM in GM will do stuff on this page.");
+//});
