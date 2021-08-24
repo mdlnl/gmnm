@@ -55,28 +55,19 @@ function updateTotalDistanceDivListener() {
     }
 }
 
-var updateDistanceObserver = null;
-
-function setupMutationObserver() {
-    if (updateDistanceObserver != null) {
-        return;
-    }
-    const totalDistanceDiv = findTotalDistanceDiv();
-    if (totalDistanceDiv == null) {
-        return;
-    }
-    updateDistanceObserver =
-          new MutationObserver((ml, ob) => updateTotalDistanceDivListener());
-    updateDistanceObserver.observe(
-        totalDistanceDiv.parentElement,
-        { attributes: true, childList: true, subtree: true });
-    console.info('[GMNM] NM in GM is Observing.');
+const contentContainerNode = document.getElementById("content-container");
+if (contentContainerNode != null) {
+    new MutationObserver((ml, ob) => {
+        for (m in ml) {
+            if (ml[m].target.id == 'ruler') {
+                new MutationObserver((rml, rob) => updateTotalDistanceDivListener())
+                    .observe(ml[m].target, { attributes: true, childList: true, subtree: true });
+                console.info('[GMNM] Observing new ruler.');
+                return;
+            }
+        }
+    }).observe(
+        contentContainerNode,
+        { attributes: false, childList: true, subtree: true });
+    console.info('[GMNM] Watching for ruler creation.');
 }
-
-//window.addEventListener("DOMContentLoaded", (event) => {
-    document
-        .getElementsByTagName("canvas")[0]
-        .addEventListener("click", setupMutationObserver);
-
-    console.info("[GMNM] NM in GM will do stuff on this page.");
-//});
