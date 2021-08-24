@@ -22,7 +22,8 @@ function computeNm(totalDistanceDiv) {
         if (totalDistanceDiv.children[n].innerText != null) {
             const match = totalDistanceDiv.children[n].innerText.match(/([0-9.,]*) (mi|ft|km|m)/);
             if (match != null && match.length > 2) {
-                return parseFloat(matchMi[1].replaceAll(',', '')) * CONVERSION_FACTORS[match[2]];
+                console.log(`Distance is now ${match[1]} ${match[2]}.`);
+                return parseFloat(match[1].replaceAll(',', '')) * CONVERSION_FACTORS[match[2]];
             }
         }
     }
@@ -40,14 +41,17 @@ function addOrUpdateAddNmNode(totalDistanceDiv, nm) {
     
     var newText = ` (${nm.toFixed(1)} nm)`;
     if (nmSpan.textContent !== newText) {
+        console.log(`Updating to ${newText} because it used to be ${nmSpan.textContent}`);
         nmSpan.textContent = newText;
     }
 }
 
 function updateTotalDistanceDivListener() {
+    console.log('Observed... something.');
     var totalDistanceDiv = findTotalDistanceDiv();
     if (totalDistanceDiv != null) {
         const nm = computeNm(totalDistanceDiv);
+        console.log(`That's ${nm} nm`);
         
         if (nm != null) {
             addOrUpdateAddNmNode(totalDistanceDiv, nm);
@@ -55,17 +59,22 @@ function updateTotalDistanceDivListener() {
     }
 }
 
+var updateDistanceObserver = null;
+
 function setupMutationObserver() {
+    if (updateDistanceObserver != null) {
+        return;
+    }
     const totalDistanceDiv = findTotalDistanceDiv();
     if (totalDistanceDiv == null) {
         return;
     }
-    const canvas = document.getElementsByTagName("canvas")[0];
-    const updateDistanceObserver =
-          new MutationObserver((ml, ob) => updateTotalDistanceDivListener);
+    updateDistanceObserver =
+          new MutationObserver((ml, ob) => updateTotalDistanceDivListener());
     updateDistanceObserver.observe(
-        totalDistanceDiv.parentElement,
+        totalDistanceDiv,
         { attributes: true, childList: true, subtree: true });
+    console.log('NM in GM is Observing.');
 }
 
 //document.addEventListener("DOMContentLoaded", (event) => {
