@@ -5,10 +5,6 @@ function findTotalDistanceDiv() {
         .singleNodeValue;
 }
 
-function convertMiToNm(mi) {
-    return 0.868976 * mi;
-}
-
 const CONVERSION_FACTORS = {
     "mi": 0.868976,
     "ft": 0.000164579,
@@ -22,7 +18,7 @@ function computeNm(totalDistanceDiv) {
         if (totalDistanceDiv.children[n].innerText != null) {
             const match = totalDistanceDiv.children[n].innerText.match(/([0-9.,]*) (mi|ft|km|m)/);
             if (match != null && match.length > 2) {
-                console.log(`Distance is now ${match[1]} ${match[2]}.`);
+                console.info(`[GMNM] Distance is now ${match[1]} ${match[2]}.`);
                 return parseFloat(match[1].replaceAll(',', '')) * CONVERSION_FACTORS[match[2]];
             }
         }
@@ -41,17 +37,17 @@ function addOrUpdateAddNmNode(totalDistanceDiv, nm) {
     
     var newText = ` (${nm.toFixed(1)} nm)`;
     if (nmSpan.textContent !== newText) {
-        console.log(`Updating to ${newText} because it used to be ${nmSpan.textContent}`);
+        console.info(`[GMNM] Updating to ${newText} because it used to be ${nmSpan.textContent}`);
         nmSpan.textContent = newText;
     }
 }
 
 function updateTotalDistanceDivListener() {
-    console.log(`Observed something`);
+    console.log(`[GMNM] Observed something`);
     var totalDistanceDiv = findTotalDistanceDiv();
     if (totalDistanceDiv != null) {
         const nm = computeNm(totalDistanceDiv);
-        console.log(`That's ${nm} nm`);
+        console.info(`[GMNM] That's ${nm} nm`);
         
         if (nm != null) {
             addOrUpdateAddNmNode(totalDistanceDiv, nm);
@@ -74,13 +70,13 @@ function setupMutationObserver() {
     updateDistanceObserver.observe(
         totalDistanceDiv.parentElement,
         { attributes: true, childList: true, subtree: true });
-    console.log('NM in GM is Observing.');
+    console.info('[GMNM] NM in GM is Observing.');
 }
 
-//document.addEventListener("DOMContentLoaded", (event) => {
+//window.addEventListener("DOMContentLoaded", (event) => {
     document
         .getElementsByTagName("canvas")[0]
         .addEventListener("click", setupMutationObserver);
 
-    console.log("NM in GM will do stuff on this page.");
+    console.info("[GMNM] NM in GM will do stuff on this page.");
 //});
