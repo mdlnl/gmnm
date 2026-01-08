@@ -1,5 +1,5 @@
-function findTotalDistanceDiv() {
-    const xpath = "//*[@id='ruler']/div/div[4]";
+function findTotalDistanceDivByText() {
+    var xpath = "//*[text()='Total distance: ']";
     return document
         .evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
         .singleNodeValue;
@@ -14,15 +14,23 @@ const CONVERSION_FACTORS = {
 };
 
 function computeNm(totalDistanceDiv) {
-    for (n in totalDistanceDiv.children) {
-        if (totalDistanceDiv.children[n].innerText != null) {
-            const match = totalDistanceDiv.children[n].innerText.match(/([0-9.,]*) (mi|ft|km|m)/);
-            if (match != null && match.length > 2) {
-                console.info(`[GMNM] Distance is now ${match[1]} ${match[2]}.`);
-                return parseFloat(match[1].replaceAll(',', '')) * CONVERSION_FACTORS[match[2]];
-            }
+    if (totalDistanceDiv.innerText != null) {
+        // console.info(`[GMNM] Checking ${totalDistanceDiv.children[n].innerText}...`);
+        const match = totalDistanceDiv.innerText.match(/([0-9.,]+) (mi|ft|km|m)/);
+        if (match != null && match.length > 2) {
+            // console.info(`[GMNM] Found distance in "${totalDistanceDiv.innerText}"`);
+            // console.info(`[GMNM] Distance is now ${match[1]} ${match[2]}.`);
+            return parseFloat(match[1].replaceAll(',', '')) * CONVERSION_FACTORS[match[2]];
         }
     }
+}
+
+function computeNmForChildren(parentTotalDistanceDiv) {
+    // console.info(`[GMNM] Looking for distance text in ${totalDistanceDiv.innerHTML}`);
+    for (n in totalDistanceDiv.children) {
+        computeNm(totalDistanceDiv.children[n])
+    }
+    console.warn(`[GMNM] Couldn't find a child with inner text matching distance pattern`);
     return null;
 }
 
@@ -37,14 +45,14 @@ function addOrUpdateAddNmNode(totalDistanceDiv, nm) {
     
     var newText = ` (${nm.toFixed(1)} nm)`;
     if (nmSpan.textContent !== newText) {
-        console.info(`[GMNM] Updating to ${newText} because it used to be ${nmSpan.textContent}`);
+        // console.info(`[GMNM] Updating to ${newText} because it used to be ${nmSpan.textContent}`);
         nmSpan.textContent = newText;
     }
 }
 
 function updateTotalDistanceDivListener(mutationList) {
-    console.info(`[GMNM] Observed something`);
-    var totalDistanceDiv = findTotalDistanceDiv();
+    // console.info(`[GMNM] Observed something`);
+    var totalDistanceDiv = findTotalDistanceDivByText();
     if (totalDistanceDiv != null) {
         const nm = computeNm(totalDistanceDiv);
         console.info(`[GMNM] That's ${nm} nm`);
@@ -52,26 +60,23 @@ function updateTotalDistanceDivListener(mutationList) {
         if (nm != null) {
             addOrUpdateAddNmNode(totalDistanceDiv, nm);
         }
+    } else {
+        console.warn(`[GMNM] Can't find total distance div`);
     }
 }
 
-const contentContainerNode = document.getElementById("content-container");
-if (contentContainerNode != null) {
-    new MutationObserver((ml, ob) => {
-        for (m in ml) {
-            if (ml[m].target.id == 'ruler') {
-                new MutationObserver((rml, rob) => updateTotalDistanceDivListener(rml))
-                    .observe(
-                        ml[m].target,
-                        {
-                            attributes:true, // needed when text changes
-                            childList:true, // needed for when text is added
-                            subtree:true // needed, no idea why
-                        });
-                console.info('[GMNM] Observing new ruler.');
-                return;
-            }
-        }
-    }).observe(contentContainerNode, { childList: true, subtree: true });
-    console.info('[GMNM] Watching for ruler creation.');
+function startGmnmObservation(element) {
+    new MutationObserver((rml, rob) => updateTotalDistanceDivListener(rml))
+        .observe(
+        element,
+        {
+            attributes:true, // needed when text changes
+            childList:true, // needed for when text is added
+            subtree:true // needed, no idea why
+        });
+    console.info('[GMNM] Observing new ruler.');
+    return;
+}
+
+startGmnmObservation(document);
 }
