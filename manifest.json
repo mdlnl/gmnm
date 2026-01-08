@@ -9,7 +9,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.google.com/maps/*"],
-      "js": ["content.js"],
+      "js": ["gmnm-content.js"],
       "run_at": "document_idle"
     }
   ]
